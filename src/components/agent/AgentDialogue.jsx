@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader, CheckCircle, Sparkles } from "lucide-react";
 import Card from "../common/Card";
@@ -10,8 +10,23 @@ const AgentDialogue = ({ action, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [messages, setMessages] = useState([]);
+  const messagesEndRef = useRef(null);
+  const hasInitialized = useRef(false); // Add this
+
+  // Auto-scroll to bottom when messages change
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    // Prevent duplicate initialization
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
     // Initial greeting
     setTimeout(() => {
       addMessage("agent", `I'll help you with: ${action.title}`);
@@ -19,7 +34,10 @@ const AgentDialogue = ({ action, onClose }) => {
   }, []);
 
   const addMessage = (sender, text) => {
-    setMessages((prev) => [...prev, { sender, text, id: Date.now() }]);
+    setMessages((prev) => [
+      ...prev,
+      { sender, text, id: Date.now() + Math.random() },
+    ]);
   };
 
   const handleStartAction = async () => {
@@ -120,6 +138,8 @@ const AgentDialogue = ({ action, onClose }) => {
                 </motion.div>
               ))}
             </AnimatePresence>
+            {/* Invisible div for auto-scroll target */}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Progress Steps - Only show when processing */}
