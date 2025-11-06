@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import useFinternetStore from "./store/finternetStore";
 import AddressCreation from "./components/onboarding/AddressCreation";
 import CredentialLinking from "./components/onboarding/CredentialLinking";
-// import AgenticPanel from "./components/agent/AgenticPanel";
+import AgenticPanel from "./components/agent/AgenticPanel";
 
 function App() {
   const currentStep = useFinternetStore((state) => state.currentStep);
@@ -31,10 +31,7 @@ function App() {
           {currentStep === "credential-linking" && (
             <CredentialLinking key="credentials" />
           )}
-          {
-            currentStep === "dashboard"
-            //  && <AgenticPanel key="dashboard" />
-          }
+          {currentStep === "dashboard" && <AgenticPanel key="dashboard" />}
         </AnimatePresence>
       </div>
     </div>
