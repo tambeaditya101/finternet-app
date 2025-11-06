@@ -8,15 +8,15 @@ const Badge = ({ credential, verified = false, onClick, locked = false }) => {
       whileHover={{ scale: locked ? 1 : 1.02 }}
       onClick={!locked ? onClick : undefined}
       className={`
-        relative p-4 rounded-xl cursor-pointer transition-all duration-300
-        ${
-          verified
-            ? "glass border-2 border-green-500 shadow-lg shadow-green-500/30"
-            : locked
-            ? "glass border-2 border-gray-600 opacity-50 cursor-not-allowed"
-            : "glass border-2 border-white/20 hover:border-finternet-primary"
-        }
-      `}
+    relative p-4 rounded-xl cursor-pointer transition-all duration-300 h-full flex flex-col
+    ${
+      verified
+        ? "glass border-2 border-green-500 shadow-lg shadow-green-500/30"
+        : locked
+        ? "glass border-2 border-gray-600 opacity-50 cursor-not-allowed"
+        : "glass border-2 border-white/20 hover:border-finternet-primary"
+    }
+  `}
       style={verified ? { borderColor: credential.color } : {}}
     >
       <div className="flex items-center gap-3">

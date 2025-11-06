@@ -1,28 +1,28 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles } from "lucide-react";
+import { Lock, Sparkles, Plus } from "lucide-react";
 import useFinternetStore from "../../store/finternetStore";
-import { AGENTIC_ACTIONS } from "../../data/mockData";
+import { AGENTIC_ACTIONS, CREDENTIALS } from "../../data/mockData";
 import Card from "../common/Card";
 import Badge from "../common/Badge";
-import { CREDENTIALS } from "../../data/mockData";
+import Button from "../common/Button";
 import AgentDialogue from "./AgentDialogue";
+import CredentialVerificationModal from "./CredentialVerificationModal"; // We'll create this
 import { fadeInUp, staggerContainer } from "../../utils/animations";
 
 const AgenticPanel = () => {
-  const { user, credentials } = useFinternetStore();
+  const { user, credentials, linkCredential } = useFinternetStore();
   const [selectedAction, setSelectedAction] = useState(null);
-  console.log("selectedAction:", selectedAction);
+  const [verifyingCredential, setVerifyingCredential] = useState(null);
+
   const isCredentialLinked = (credentialId) => {
     return credentials.some((c) => c.id === credentialId);
   };
 
   const canPerformAction = (action) => {
-    const result = action.requiredCredentials.every((credId) =>
+    return action.requiredCredentials.every((credId) =>
       isCredentialLinked(credId)
     );
-    console.log("canPerformAction for", action.title, ":", result); // Add this
-    return result;
   };
 
   const getRequiredCredentialNames = (requiredIds) => {
@@ -31,6 +31,27 @@ const AgenticPanel = () => {
       return cred ? cred.name : id;
     });
   };
+
+  const handleActionClick = (action) => {
+    const canPerform = canPerformAction(action);
+
+    if (canPerform) {
+      setSelectedAction(action);
+    }
+  };
+
+  const handleCredentialClick = (credentialId) => {
+    if (!isCredentialLinked(credentialId)) {
+      const credential = CREDENTIALS.find((c) => c.id === credentialId);
+      setVerifyingCredential(credential);
+    }
+  };
+
+  const getUnlinkedCredentials = () => {
+    return CREDENTIALS.filter((cred) => !isCredentialLinked(cred.id));
+  };
+
+  const unlinkedCredentials = getUnlinkedCredentials();
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -74,13 +95,40 @@ const AgenticPanel = () => {
                 (c) => c.id === linkedCred.id
               );
               return credDetail ? (
-                <Badge
-                  key={linkedCred.id}
-                  credential={credDetail}
-                  verified={true}
-                />
+                <div key={linkedCred.id} className="h-full">
+                  {" "}
+                  {/* Add wrapper with h-full */}
+                  <Badge credential={credDetail} verified={true} />
+                </div>
               ) : null;
             })}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Unlinked Credentials - NEW SECTION */}
+      {unlinkedCredentials.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Available Credentials</h2>
+            <p className="text-sm text-gray-400">
+              Click to verify and unlock more actions
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {unlinkedCredentials.map((credential) => (
+              <Badge
+                key={credential.id}
+                credential={credential}
+                verified={false}
+                onClick={() => handleCredentialClick(credential.id)}
+              />
+            ))}
           </div>
         </motion.div>
       )}
@@ -102,12 +150,7 @@ const AgenticPanel = () => {
           verified credentials
         </p>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {AGENTIC_ACTIONS.map((action) => {
             const canPerform = canPerformAction(action);
             const requiredNames = getRequiredCredentialNames(
@@ -115,24 +158,14 @@ const AgenticPanel = () => {
             );
 
             return (
-              <motion.div key={action.id} variants={fadeInUp}>
-                <Card
-                  className={`p-6 cursor-pointer transition-all relative ${
+              <div key={action.id}>
+                <div
+                  className={`glass rounded-2xl p-6 cursor-pointer transition-all relative h-full min-h-[320px] flex flex-col ${
                     canPerform
-                      ? "hover:border-finternet-primary/50 hover:shadow-lg hover:shadow-finternet-primary/20"
-                      : "opacity-60 cursor-not-allowed"
+                      ? "hover:border-finternet-primary/50 hover:shadow-lg hover:shadow-finternet-primary/20 border-2 border-transparent"
+                      : "opacity-60 cursor-not-allowed border-2 border-transparent"
                   }`}
-                  onClick={() => {
-                    console.log(
-                      "Card clicked:",
-                      action.title,
-                      "canPerform:",
-                      canPerform
-                    ); // Add this
-                    if (canPerform) {
-                      setSelectedAction(action);
-                    }
-                  }}
+                  onClick={() => handleActionClick(action)}
                 >
                   {/* Lock Icon for Locked Actions */}
                   {!canPerform && (
@@ -150,46 +183,48 @@ const AgenticPanel = () => {
 
                   {/* Title & Description */}
                   <h3 className="text-xl font-semibold mb-2">{action.title}</h3>
-                  <p className="text-gray-400 text-sm mb-4">
+                  <p className="text-gray-400 text-sm mb-4 flex-grow">
                     {action.description}
                   </p>
 
-                  {/* Required Credentials */}
-                  <div className="pt-4 border-t border-white/10">
-                    <div className="text-xs text-gray-500 mb-2">
-                      Required Credentials:
+                  {/* Required Credentials - Push to bottom */}
+                  <div className="mt-auto">
+                    <div className="pt-4 border-t border-white/10">
+                      <div className="text-xs text-gray-500 mb-2">
+                        Required Credentials:
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {requiredNames.map((name, idx) => {
+                          const isLinked = isCredentialLinked(
+                            action.requiredCredentials[idx]
+                          );
+                          return (
+                            <div
+                              key={idx}
+                              className={`px-2 py-1 rounded text-xs ${
+                                isLinked
+                                  ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                                  : "bg-red-500/20 text-red-400 border border-red-500/30"
+                              }`}
+                            >
+                              {isLinked ? "✓" : "✗"} {name}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      {requiredNames.map((name, idx) => {
-                        const isLinked = isCredentialLinked(
-                          action.requiredCredentials[idx]
-                        );
-                        return (
-                          <div
-                            key={idx}
-                            className={`px-2 py-1 rounded text-xs ${
-                              isLinked
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-red-500/20 text-red-400 border border-red-500/30"
-                            }`}
-                          >
-                            {isLinked ? "✓" : "✗"} {name}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
 
-                  {/* Estimated Time */}
-                  <div className="mt-4 text-xs text-gray-500">
-                    <span className="text-finternet-accent">⚡</span>{" "}
-                    {action.estimatedTime}
+                    {/* Estimated Time */}
+                    <div className="mt-4 text-xs text-gray-500">
+                      <span className="text-finternet-accent">⚡</span>{" "}
+                      {action.estimatedTime}
+                    </div>
                   </div>
-                </Card>
-              </motion.div>
+                </div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </motion.div>
 
       {/* Agent Dialogue Modal */}
@@ -198,6 +233,20 @@ const AgenticPanel = () => {
           <AgentDialogue
             action={selectedAction}
             onClose={() => setSelectedAction(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Credential Verification Modal */}
+      <AnimatePresence>
+        {verifyingCredential && (
+          <CredentialVerificationModal
+            credential={verifyingCredential}
+            onClose={() => setVerifyingCredential(null)}
+            onVerified={(credentialId) => {
+              linkCredential(credentialId);
+              setVerifyingCredential(null);
+            }}
           />
         )}
       </AnimatePresence>
