@@ -13,6 +13,49 @@ https://finternet-app-nu.vercel.app/
 
 ---
 
+## 📦 Installation and Running the App
+
+### Prerequisites
+
+- Node.js version 18 or higher (LTS recommended)
+- npm (Node package manager) installed
+
+### Steps to Run
+
+1. **Clone the repository**
+
+```
+git clone https://github.com/tambeaditya101/finternet-app.git
+cd finternet-app
+```
+
+2. **Install dependencies**
+
+```
+npm install
+```
+
+3. **Run the development server**
+
+```
+npm run dev
+```
+
+4. **Open the app**
+
+- By default, Vite will start the app at `http://localhost:5173`
+- Open this URL in your browser to use the application locally
+
+---
+
+### Notes
+
+- The app state is persisted locally using localStorage, so data and progress will be saved across refreshes
+- Use the **"New User"** button in the dashboard to reset and start over
+- For best styling and animations, use a modern browser (Chrome, Firefox, Edge latest versions)
+
+---
+
 ## 📋 Summary of the Prototype
 
 ### Assignment 1: Identity and Credential System
