@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle, Loader } from "lucide-react";
+import { X, CheckCircle, Loader, LogOut } from "lucide-react";
 import useFinternetStore from "../../store/finternetStore";
 import { CREDENTIALS } from "../../data/mockData";
 import Button from "../common/Button";
@@ -10,7 +10,7 @@ import IdentityCard from "./IdentityCard";
 import { fadeInUp, staggerContainer } from "../../utils/animations";
 
 const CredentialLinking = () => {
-  const { credentials, linkCredential, setCurrentStep, hasCredential } =
+  const { credentials, linkCredential, setCurrentStep, reset } =
     useFinternetStore();
   const [selectedCredential, setSelectedCredential] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -47,6 +47,16 @@ const CredentialLinking = () => {
     setCurrentStep("dashboard");
   };
 
+  const handleStartOver = () => {
+    if (
+      window.confirm(
+        "Start over with a new identity? This will clear all your data."
+      )
+    ) {
+      reset();
+    }
+  };
+
   const isCredentialLinked = (credentialId) => {
     return credentials.some((c) => c.id === credentialId);
   };
@@ -57,6 +67,18 @@ const CredentialLinking = () => {
 
   return (
     <motion.div {...fadeInUp} className="max-w-4xl mx-auto">
+      {/* Start Over Button - Top Right */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleStartOver}
+          className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-red-500/30 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors flex items-center gap-2"
+          title="Start over with new user"
+        >
+          <LogOut size={16} />
+          Start Over
+        </button>
+      </div>
+
       {/* Identity Card */}
       <IdentityCard />
 

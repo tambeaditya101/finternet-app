@@ -1,46 +1,69 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-const useFinternetStore = create((set) => ({
-  // User data
-  user: {
-    name: "",
-    finternetAddress: "",
-    id: "",
-  },
-
-  // Credentials
-  credentials: [],
-
-  // Current flow state
-  currentStep: "address-creation", // address-creation, credential-linking, dashboard
-
-  // Actions
-  createIdentity: (name) =>
-    set((state) => ({
+const useFinternetStore = create(
+  persist(
+    (set) => ({
+      // User data
       user: {
-        name,
-        finternetAddress: `${name.toLowerCase().replace(/\s+/g, "")}@finternet`,
-        id: `FIN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+        name: "",
+        finternetAddress: "",
+        id: "",
       },
-      currentStep: "credential-linking",
-    })),
 
-  linkCredential: (credentialId) =>
-    set((state) => ({
-      credentials: [
-        ...state.credentials,
-        {
-          id: credentialId,
-          linkedAt: new Date().toISOString(),
-          status: "verified",
-        },
-      ],
-    })),
+      // Credentials
+      credentials: [],
 
-  setCurrentStep: (step) => set({ currentStep: step }),
+      // Current flow state
+      currentStep: "address-creation",
 
-  hasCredential: (credentialId) => (state) =>
-    state.credentials.some((c) => c.id === credentialId),
-}));
+      // Actions
+      createIdentity: (name) =>
+        set((state) => ({
+          user: {
+            name,
+            finternetAddress: `${name
+              .toLowerCase()
+              .replace(/\s+/g, "")}@finternet`,
+            id: `FIN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          },
+          currentStep: "credential-linking",
+        })),
+
+      linkCredential: (credentialId) =>
+        set((state) => ({
+          credentials: [
+            ...state.credentials,
+            {
+              id: credentialId,
+              linkedAt: new Date().toISOString(),
+              status: "verified",
+            },
+          ],
+        })),
+
+      setCurrentStep: (step) => set({ currentStep: step }),
+
+      hasCredential: (credentialId) => (state) =>
+        state.credentials.some((c) => c.id === credentialId),
+
+      // Add reset function for testing
+      reset: () =>
+        set({
+          user: { name: "", finternetAddress: "", id: "" },
+          credentials: [],
+          currentStep: "address-creation",
+        }),
+    }),
+    {
+      name: "finternet-storage", // localStorage key
+      partialPersist: (state) => ({
+        user: state.user,
+        credentials: state.credentials,
+        currentStep: state.currentStep,
+      }),
+    }
+  )
+);
 
 export default useFinternetStore;

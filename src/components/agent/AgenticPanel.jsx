@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, Plus } from "lucide-react";
+import { Lock, Sparkles, LogOut } from "lucide-react";
 import useFinternetStore from "../../store/finternetStore";
 import { AGENTIC_ACTIONS, CREDENTIALS } from "../../data/mockData";
 import Card from "../common/Card";
 import Badge from "../common/Badge";
 import Button from "../common/Button";
 import AgentDialogue from "./AgentDialogue";
-import CredentialVerificationModal from "./CredentialVerificationModal"; // We'll create this
+import CredentialVerificationModal from "./CredentialVerificationModal";
 import { fadeInUp, staggerContainer } from "../../utils/animations";
 
 const AgenticPanel = () => {
-  const { user, credentials, linkCredential } = useFinternetStore();
+  const { user, credentials, linkCredential, reset } = useFinternetStore();
   const [selectedAction, setSelectedAction] = useState(null);
   const [verifyingCredential, setVerifyingCredential] = useState(null);
 
@@ -47,6 +47,16 @@ const AgenticPanel = () => {
     }
   };
 
+  const handleReset = () => {
+    if (
+      window.confirm(
+        "Start over with a new identity? This will clear all your data."
+      )
+    ) {
+      reset();
+    }
+  };
+
   const getUnlinkedCredentials = () => {
     return CREDENTIALS.filter((cred) => !isCredentialLinked(cred.id));
   };
@@ -65,14 +75,28 @@ const AgenticPanel = () => {
               </h1>
               <p className="text-gray-400">{user.finternetAddress}</p>
             </div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="text-finternet-accent" size={24} />
-              <div>
-                <div className="text-sm text-gray-400">Credentials</div>
-                <div className="text-2xl font-bold text-finternet-primary">
-                  {credentials.length}/{CREDENTIALS.length}
+
+            <div className="flex items-center gap-4">
+              {/* Credentials Count */}
+              <div className="flex items-center gap-2">
+                <Sparkles className="text-finternet-accent" size={24} />
+                <div>
+                  <div className="text-sm text-gray-400">Credentials</div>
+                  <div className="text-2xl font-bold text-finternet-primary">
+                    {credentials.length}/{CREDENTIALS.length}
+                  </div>
                 </div>
               </div>
+
+              {/* Simple Reset Button */}
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-red-500/30 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors flex items-center gap-2"
+                title="Start over with new user"
+              >
+                <LogOut size={16} />
+                New User
+              </button>
             </div>
           </div>
         </Card>
@@ -96,8 +120,6 @@ const AgenticPanel = () => {
               );
               return credDetail ? (
                 <div key={linkedCred.id} className="h-full">
-                  {" "}
-                  {/* Add wrapper with h-full */}
                   <Badge credential={credDetail} verified={true} />
                 </div>
               ) : null;
@@ -106,7 +128,7 @@ const AgenticPanel = () => {
         </motion.div>
       )}
 
-      {/* Unlinked Credentials - NEW SECTION */}
+      {/* Unlinked Credentials */}
       {unlinkedCredentials.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -122,12 +144,13 @@ const AgenticPanel = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {unlinkedCredentials.map((credential) => (
-              <Badge
-                key={credential.id}
-                credential={credential}
-                verified={false}
-                onClick={() => handleCredentialClick(credential.id)}
-              />
+              <div key={credential.id} className="h-full">
+                <Badge
+                  credential={credential}
+                  verified={false}
+                  onClick={() => handleCredentialClick(credential.id)}
+                />
+              </div>
             ))}
           </div>
         </motion.div>
