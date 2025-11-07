@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Sparkles, LogOut } from "lucide-react";
+import { Lock, Sparkles, LogOut, Building2 } from "lucide-react"; // Added Building2
 import useFinternetStore from "../../store/finternetStore";
 import { AGENTIC_ACTIONS, CREDENTIALS } from "../../data/mockData";
 import Card from "../common/Card";
@@ -11,7 +11,8 @@ import CredentialVerificationModal from "./CredentialVerificationModal";
 import { fadeInUp } from "../../utils/animations";
 
 const AgenticPanel = () => {
-  const { user, credentials, linkCredential, reset } = useFinternetStore();
+  const { user, credentials, linkCredential, reset, setCurrentStep } =
+    useFinternetStore();
   const [selectedAction, setSelectedAction] = useState(null);
   const [verifyingCredential, setVerifyingCredential] = useState(null);
   const [showToast, setShowToast] = useState(false);
@@ -84,6 +85,7 @@ const AgenticPanel = () => {
         credentialCount={credentials.length}
         totalCredentials={CREDENTIALS.length}
         onReset={handleReset}
+        setCurrentStep={setCurrentStep}
       />
 
       {/* Verified Credentials */}
@@ -159,39 +161,70 @@ const DashboardHeader = ({
   credentialCount,
   totalCredentials,
   onReset,
-}) => (
-  <motion.div {...fadeInUp} className="mb-8">
-    <Card glowing className="p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Welcome back, {user.name}</h1>
-          <p className="text-gray-400">{user.finternetAddress}</p>
-        </div>
+  setCurrentStep,
+}) => {
+  const { propertyPortfolio } = useFinternetStore(); // Add this to show badge
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="text-finternet-accent" size={24} />
-            <div>
-              <div className="text-sm text-gray-400">Credentials</div>
-              <div className="text-2xl font-bold text-finternet-primary">
-                {credentialCount}/{totalCredentials}
+  return (
+    <motion.div {...fadeInUp} className="mb-8">
+      <Card glowing className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome back, {user.name}
+            </h1>
+            <p className="text-gray-400">{user.finternetAddress}</p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Portfolio Button - NEW */}
+            <button
+              onClick={() => setCurrentStep("portfolio")}
+              className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-purple-500/30 hover:bg-purple-500/10 text-gray-400 hover:text-purple-400 transition-colors flex items-center gap-2 relative"
+              title="View your portfolio"
+            >
+              <Building2 size={16} />
+              Portfolio
+              {/* Badge showing property count */}
+              {propertyPortfolio.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-purple-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  {propertyPortfolio.length}
+                </span>
+              )}
+            </button>
+
+            {/* Property Marketplace Button */}
+            <button
+              onClick={() => setCurrentStep("property-marketplace")}
+              className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-finternet-primary/30 hover:bg-finternet-primary/10 text-gray-400 hover:text-finternet-primary transition-colors flex items-center gap-2"
+              title="Browse properties"
+            >
+              <Building2 size={16} />
+              Marketplace
+            </button>
+            <button
+              onClick={onReset}
+              className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-red-500/30 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors flex items-center gap-2"
+              title="Start over with new user"
+            >
+              <LogOut size={16} />
+              New User
+            </button>
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-finternet-accent" size={24} />
+              <div>
+                <div className="text-sm text-gray-400">Credentials</div>
+                <div className="text-2xl font-bold text-finternet-primary">
+                  {credentialCount}/{totalCredentials}
+                </div>
               </div>
             </div>
           </div>
-
-          <button
-            onClick={onReset}
-            className="px-4 py-2 text-sm rounded-lg glass border border-white/10 hover:border-red-500/30 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-colors flex items-center gap-2"
-            title="Start over with new user"
-          >
-            <LogOut size={16} />
-            New User
-          </button>
         </div>
-      </div>
-    </Card>
-  </motion.div>
-);
+      </Card>
+    </motion.div>
+  );
+};
 
 const CredentialSection = ({
   title,

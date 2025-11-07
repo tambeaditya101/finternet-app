@@ -1,15 +1,21 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Wallet, TrendingUp, ArrowLeft } from "lucide-react";
+import { Building2, Wallet, TrendingUp, ArrowLeft, Home } from "lucide-react";
 import useFinternetStore from "../../store/finternetStore";
 import { PROPERTIES } from "../../data/propertyData";
 import Card from "../common/Card";
 import PropertyCard from "./PropertyCard";
 import PropertyDetails from "./PropertyDetails";
-import { fadeInUp, staggerContainer } from "../../utils/animations";
+import { fadeInUp } from "../../utils/animations";
 
 const PropertyMarketplace = () => {
-  const { user, walletBalance, setCurrentStep } = useFinternetStore();
+  const {
+    user,
+    walletBalance,
+    setCurrentStep,
+    propertyPortfolio,
+    getPropertyOwnership,
+  } = useFinternetStore();
   const [selectedProperty, setSelectedProperty] = useState(null);
 
   const handleBackToDashboard = () => {
@@ -105,6 +111,72 @@ const PropertyMarketplace = () => {
           </div>
         </Card>
       </motion.div>
+
+      {/* My Properties Quick View - NEW SECTION */}
+      {propertyPortfolio.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <Home size={20} />
+              My Properties ({propertyPortfolio.length})
+            </h2>
+            <button
+              onClick={() => setCurrentStep("portfolio")}
+              className="text-sm text-finternet-primary hover:text-finternet-accent transition-colors"
+            >
+              View Full Portfolio →
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {propertyPortfolio.slice(0, 3).map((holding) => {
+              const property = PROPERTIES.find(
+                (p) => p.id === holding.propertyId
+              );
+              if (!property) return null;
+
+              const ownershipPercentage = (
+                (holding.tokensOwned / property.totalTokens) *
+                100
+              ).toFixed(2);
+
+              return (
+                <Card
+                  key={holding.propertyId}
+                  className="p-4 border-2 border-green-500/30"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="text-3xl">{property.image}</div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm">{property.name}</h4>
+                      <p className="text-xs text-gray-400">
+                        {property.location}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-400">Your Share:</span>
+                    <span className="text-green-400 font-semibold">
+                      {ownershipPercentage}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span className="text-gray-400">Invested:</span>
+                    <span className="font-semibold">
+                      ${holding.totalInvested.toLocaleString()}
+                    </span>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* Property Grid */}
       <motion.div

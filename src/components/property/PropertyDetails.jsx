@@ -15,13 +15,19 @@ import Button from "../common/Button";
 import PurchaseModal from "./PurchaseModal";
 
 const PropertyDetails = ({ property, onClose }) => {
-  const { walletBalance, getPropertyOwnership } = useFinternetStore();
+  const { walletBalance, getPropertyOwnership, setCurrentStep } =
+    useFinternetStore();
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
 
   const ownership = getPropertyOwnership(property.id);
   const ownershipPercentage = ownership
     ? ((ownership.tokensOwned / property.totalTokens) * 100).toFixed(4)
     : 0;
+  // Add this handler
+  const handleViewPortfolio = () => {
+    setCurrentStep("portfolio");
+    onClose();
+  };
 
   return (
     <motion.div
@@ -65,9 +71,12 @@ const PropertyDetails = ({ property, onClose }) => {
             <div className="text-9xl">{property.image}</div>
 
             {ownership && (
-              <div className="absolute top-4 left-4 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-semibold">
-                ✓ You own {ownershipPercentage}%
-              </div>
+              <button
+                onClick={handleViewPortfolio}
+                className="absolute top-4 left-4 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-sm font-semibold hover:bg-green-500/30 transition-colors cursor-pointer"
+              >
+                ✓ You own {ownershipPercentage}% - View Portfolio →
+              </button>
             )}
           </div>
 
