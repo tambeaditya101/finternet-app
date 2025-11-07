@@ -9,7 +9,7 @@ This project is a frontend prototype demonstrating two core assignments from the
 
 ## 🚀 Live Demo
 
-[Add deployment URL if available]
+https://finternet-app-nu.vercel.app/
 
 ---
 
@@ -49,7 +49,18 @@ This project is a frontend prototype demonstrating two core assignments from the
 
 ## 📁 Project Structure
 
-<pre> ```plaintext src/ ├── components/ │ ├── agent/ # Assignment 1 Agentic Panel, Dialogue, Modals │ ├── onboarding/ # Address creation and credential verification │ ├── property/ # Assignment 2 Marketplace, Purchase, Portfolio │ ├── common/ # Reusable components: Card, Button, Badge, Toast ├── data/ # Mock data for credentials, properties, and actions ├── store/ # Zustand store with user, credentials, portfolio state ├── utils/ # Animation utilities and helpers └── App.jsx # Main app entry with flow control ``` </pre>
+```
+src/
+├── components/
+│ ├── agent/ # Assignment 1 Agentic Panel, Dialogue, Modals
+│ ├── onboarding/ # Address creation and credential verification
+│ ├── property/ # Assignment 2 Marketplace, Purchase, Portfolio
+│ ├── common/ # Reusable components: Card, Button, Badge, Toast
+├── data/ # Mock data for credentials, properties, and actions
+├── store/ # Zustand store with user, credentials, portfolio state
+├── utils/ # Animation utilities and helpers
+└── App.jsx # Main app entry with flow control
+```
 
 ---
 
