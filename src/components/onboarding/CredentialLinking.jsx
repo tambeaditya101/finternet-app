@@ -132,35 +132,56 @@ const CredentialLinking = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          {credentials.length > 0 && (
+        {/* Action Buttons - UPDATED LOGIC */}
+        <div className="space-y-4">
+          {/* Primary Action Button */}
+          {credentials.length > 0 ? (
             <Button
               variant="primary"
               onClick={handleContinue}
-              className="flex-1"
+              className="w-full"
             >
               {allCredentialsLinked
                 ? "Continue to Dashboard"
-                : "Continue with Linked Credentials"}
+                : `Continue with ${credentials.length} Credential${
+                    credentials.length > 1 ? "s" : ""
+                  }`}
             </Button>
-          )}
-          {!allCredentialsLinked && credentials.length > 0 && (
+          ) : (
             <Button
               variant="outline"
               onClick={handleContinue}
-              className="flex-1"
+              className="w-full"
             >
               Skip for Now
             </Button>
           )}
-        </div>
 
-        {credentials.length === 0 && (
-          <div className="text-center text-gray-400 text-sm mt-4">
-            Click on a credential badge to start verification
-          </div>
-        )}
+          {/* Helper Text */}
+          {credentials.length === 0 ? (
+            <div className="text-center text-gray-400 text-sm">
+              <p className="mb-2">
+                You can verify credentials later from your dashboard
+              </p>
+              <p className="text-xs text-gray-500">
+                Click on a credential badge above to start verification
+              </p>
+            </div>
+          ) : credentials.length < CREDENTIALS.length ? (
+            <div className="text-center text-gray-400 text-sm">
+              <p>
+                You can verify remaining credentials anytime from your dashboard
+              </p>
+            </div>
+          ) : (
+            <div className="text-center text-green-400 text-sm flex items-center justify-center gap-2">
+              <CheckCircle size={16} />
+              <p>
+                All credentials verified! You have full access to all actions.
+              </p>
+            </div>
+          )}
+        </div>
       </Card>
 
       {/* Verification Modal */}
